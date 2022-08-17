@@ -100,6 +100,15 @@ int main(void)
   MX_TIM3_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  stm_CAN::CAN_303x8 can(&hcan);
+  ws2812::NeoPixel pixels(&htim3, &hdma_tim3_ch4_up, 45, 22);
+
+  const ws2812::color _orenge = {48, 24, 0};
+  const ws2812::color _blue = {0, 48, 128};
+  const ws2812::color _green = {0, 48, 0};
+  const ws2812::color _purple = {24, 0, 72};
+  const ws2812::color _white = {12, 16, 32};
+  const ws2812::color _full = {255, 255, 255};
 
   /* USER CODE END 2 */
 
@@ -107,6 +116,30 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    uint8_t switches =
+      HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin) |
+      (HAL_GPIO_ReadPin(sw2_GPIO_Port, sw2_Pin) << 1) |
+      (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 2) |
+      (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 3);
+    
+    HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, switches && 0x00);
+
+    if(switches && 0x00){
+      for(int i = 0; i < 45; i++){
+        pixels.colors[i] = _blue;
+      }
+    }else{
+      for(int i = 0; i < 4; i++){
+        if(switches & (1 << i)){
+          pixels.colors[i] = _white;
+        }else{
+          pixels.colors[i] = _orenge;
+        }
+      }
+    }
+    pixels.rend();
+
+    HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -317,7 +350,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : sw1_Pin sw2_Pin sw3_Pin sw4_Pin */
   GPIO_InitStruct.Pin = sw1_Pin|sw2_Pin|sw3_Pin|sw4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }

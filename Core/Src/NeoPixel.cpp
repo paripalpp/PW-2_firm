@@ -27,6 +27,7 @@ void NeoPixel::rend(){
 	update_write_buffer();
 	if(NeoPixel::hdma->State != HAL_DMA_STATE_READY) {
     	HAL_TIM_PWM_Stop_DMA(NeoPixel::htim, NeoPixel::Channel);
+		// return;
   	}
 	HAL_TIM_PWM_Start_DMA(NeoPixel::htim, NeoPixel::Channel, (uint32_t*)NeoPixel::write_buffer, data_len + reset_bit);
 }
