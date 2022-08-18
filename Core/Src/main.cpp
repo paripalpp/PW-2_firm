@@ -95,13 +95,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_CAN_Init();
+  MX_DMA_Init();  MX_CAN_Init();
   MX_TIM3_Init();
   MX_USART2_UART_Init();
+  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
   stm_CAN::CAN_303x8 can(&hcan);
-  ws2812::NeoPixel pixels(&htim3, &hdma_tim3_ch4_up, 45, 22);
+  ws2812::NeoPixel pixels(&htim3, TIM_CHANNEL_4, &hdma_tim3_ch4_up, 45, 22);
 
   const ws2812::color _orenge = {48, 24, 0};
   const ws2812::color _blue = {0, 48, 128};
@@ -118,22 +118,22 @@ int main(void)
   {
     uint8_t switches =
       HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin) |
-      (HAL_GPIO_ReadPin(sw2_GPIO_Port, sw2_Pin) << 1) |
+      (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 1) |
       (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 2) |
-      (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 3);
+      (HAL_GPIO_ReadPin(sw2_GPIO_Port, sw2_Pin) << 3);
     
-    HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, switches && 0x00);
+    HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, !switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-    if(switches && 0x00){
+    if(!switches){
       for(int i = 0; i < 45; i++){
         pixels.colors[i] = _blue;
       }
     }else{
       for(int i = 0; i < 4; i++){
         if(switches & (1 << i)){
-          pixels.colors[i] = _white;
-        }else{
           pixels.colors[i] = _orenge;
+        }else{
+          pixels.colors[i] = _white;
         }
       }
     }
