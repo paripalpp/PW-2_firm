@@ -59,8 +59,30 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IM920_IO1_Pin GPIO_PIN_0
+#define IM920_IO1_GPIO_Port GPIOA
+#define IM920_IO2_Pin GPIO_PIN_1
+#define IM920_IO2_GPIO_Port GPIOA
+#define IM920_IO3_Pin GPIO_PIN_3
+#define IM920_IO3_GPIO_Port GPIOA
+#define IM920_IO4_Pin GPIO_PIN_4
+#define IM920_IO4_GPIO_Port GPIOA
+#define IM920_IO5_Pin GPIO_PIN_5
+#define IM920_IO5_GPIO_Port GPIOA
+#define IM920_IO8_Pin GPIO_PIN_6
+#define IM920_IO8_GPIO_Port GPIOA
+#define IM920_IO10_Pin GPIO_PIN_7
+#define IM920_IO10_GPIO_Port GPIOA
 #define breaker_Pin GPIO_PIN_0
 #define breaker_GPIO_Port GPIOB
+#define IM920_RESET_Pin GPIO_PIN_8
+#define IM920_RESET_GPIO_Port GPIOA
+#define IM920_IO6_Pin GPIO_PIN_9
+#define IM920_IO6_GPIO_Port GPIOA
+#define IM920_IO7_Pin GPIO_PIN_10
+#define IM920_IO7_GPIO_Port GPIOA
+#define DS_RMTKL_Pin GPIO_PIN_3
+#define DS_RMTKL_GPIO_Port GPIOB
 #define sw1_Pin GPIO_PIN_4
 #define sw1_GPIO_Port GPIOB
 #define sw2_Pin GPIO_PIN_5

@@ -95,10 +95,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();  MX_CAN_Init();
+  MX_DMA_Init();
+  MX_CAN_Init();
   MX_TIM3_Init();
   MX_USART2_UART_Init();
-  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
   stm_CAN::CAN_303x8 can(&hcan);
   ws2812::NeoPixel pixels(&htim3, TIM_CHANNEL_4, &hdma_tim3_ch4_up, 45, 22);
@@ -338,7 +338,28 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : IM920_IO1_Pin IM920_IO2_Pin IM920_IO3_Pin IM920_IO4_Pin
+                           IM920_IO5_Pin IM920_IO8_Pin IM920_IO6_Pin IM920_IO7_Pin */
+  GPIO_InitStruct.Pin = IM920_IO1_Pin|IM920_IO2_Pin|IM920_IO3_Pin|IM920_IO4_Pin
+                          |IM920_IO5_Pin|IM920_IO8_Pin|IM920_IO6_Pin|IM920_IO7_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : IM920_IO10_Pin IM920_RESET_Pin */
+  GPIO_InitStruct.Pin = IM920_IO10_Pin|IM920_RESET_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : breaker_Pin */
   GPIO_InitStruct.Pin = breaker_Pin;
@@ -346,6 +367,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(breaker_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : DS_RMTKL_Pin */
+  GPIO_InitStruct.Pin = DS_RMTKL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(DS_RMTKL_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : sw1_Pin sw2_Pin sw3_Pin sw4_Pin */
   GPIO_InitStruct.Pin = sw1_Pin|sw2_Pin|sw3_Pin|sw4_Pin;
