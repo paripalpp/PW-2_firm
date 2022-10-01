@@ -110,6 +110,10 @@ int main(void)
   const ws2812::color _white = {12, 16, 32};
   const ws2812::color _full = {255, 255, 255};
 
+  HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
+  HAL_Delay(10);
+  HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,7 +124,7 @@ int main(void)
       HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin) |
       (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 1) |
       (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 2) |
-      (HAL_GPIO_ReadPin(sw2_GPIO_Port, sw2_Pin) << 3);
+      (HAL_GPIO_ReadPin(IM920_IO1_GPIO_Port, IM920_IO1_Pin) << 3);
     
     HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, !switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
