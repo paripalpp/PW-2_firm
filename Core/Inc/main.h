@@ -81,12 +81,12 @@ void Error_Handler(void);
 #define IM920_IO6_GPIO_Port GPIOA
 #define IM920_IO7_Pin GPIO_PIN_10
 #define IM920_IO7_GPIO_Port GPIOA
-#define DS_RMTKL_Pin GPIO_PIN_3
-#define DS_RMTKL_GPIO_Port GPIOB
+#define out_stop_dsrk_Pin GPIO_PIN_3
+#define out_stop_dsrk_GPIO_Port GPIOB
 #define sw1_Pin GPIO_PIN_4
 #define sw1_GPIO_Port GPIOB
-#define sw2_Pin GPIO_PIN_5
-#define sw2_GPIO_Port GPIOB
+#define out_emkl_sw2_Pin GPIO_PIN_5
+#define out_emkl_sw2_GPIO_Port GPIOB
 #define sw3_Pin GPIO_PIN_6
 #define sw3_GPIO_Port GPIOB
 #define sw4_Pin GPIO_PIN_7

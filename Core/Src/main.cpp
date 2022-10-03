@@ -345,7 +345,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, breaker_Pin|out_stop_dsrk_Pin|out_emkl_sw2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
@@ -365,21 +365,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : breaker_Pin */
-  GPIO_InitStruct.Pin = breaker_Pin;
+  /*Configure GPIO pins : breaker_Pin out_stop_dsrk_Pin out_emkl_sw2_Pin */
+  GPIO_InitStruct.Pin = breaker_Pin|out_stop_dsrk_Pin|out_emkl_sw2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(breaker_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : DS_RMTKL_Pin */
-  GPIO_InitStruct.Pin = DS_RMTKL_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(DS_RMTKL_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : sw1_Pin sw2_Pin sw3_Pin sw4_Pin */
-  GPIO_InitStruct.Pin = sw1_Pin|sw2_Pin|sw3_Pin|sw4_Pin;
+  /*Configure GPIO pins : sw1_Pin sw3_Pin sw4_Pin */
+  GPIO_InitStruct.Pin = sw1_Pin|sw3_Pin|sw4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
