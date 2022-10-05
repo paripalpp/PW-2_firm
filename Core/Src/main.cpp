@@ -95,10 +95,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();  MX_CAN_Init();
+  MX_DMA_Init();
+  MX_CAN_Init();
   MX_TIM3_Init();
   MX_USART2_UART_Init();
-  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
   stm_CAN::CAN_303x8 can(&hcan);
   ws2812::NeoPixel pixels(&htim3, TIM_CHANNEL_4, &hdma_tim3_ch4_up, 45, 22);
@@ -110,6 +110,10 @@ int main(void)
   const ws2812::color _white = {12, 16, 32};
   const ws2812::color _full = {255, 255, 255};
 
+  HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
+  HAL_Delay(10);
+  HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,9 +124,12 @@ int main(void)
       HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin) |
       (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 1) |
       (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 2) |
-      (HAL_GPIO_ReadPin(sw2_GPIO_Port, sw2_Pin) << 3);
+      (HAL_GPIO_ReadPin(IM920_IO1_GPIO_Port, IM920_IO1_Pin) << 3);
     
     HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, !switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    HAL_GPIO_WritePin(out_emkl_sw2_GPIO_Port, out_emkl_sw2_Pin, switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(out_stop_dsrk_GPIO_Port, out_stop_dsrk_Pin, switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
     if(!switches){
       for(int i = 0; i < 45; i++){
@@ -338,17 +345,38 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pin : breaker_Pin */
-  GPIO_InitStruct.Pin = breaker_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, breaker_Pin|out_stop_dsrk_Pin|out_emkl_sw2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : IM920_IO1_Pin IM920_IO2_Pin IM920_IO3_Pin IM920_IO4_Pin
+                           IM920_IO5_Pin IM920_IO8_Pin IM920_IO6_Pin IM920_IO7_Pin */
+  GPIO_InitStruct.Pin = IM920_IO1_Pin|IM920_IO2_Pin|IM920_IO3_Pin|IM920_IO4_Pin
+                          |IM920_IO5_Pin|IM920_IO8_Pin|IM920_IO6_Pin|IM920_IO7_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : IM920_IO10_Pin IM920_RESET_Pin */
+  GPIO_InitStruct.Pin = IM920_IO10_Pin|IM920_RESET_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(breaker_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : sw1_Pin sw2_Pin sw3_Pin sw4_Pin */
-  GPIO_InitStruct.Pin = sw1_Pin|sw2_Pin|sw3_Pin|sw4_Pin;
+  /*Configure GPIO pins : breaker_Pin out_stop_dsrk_Pin out_emkl_sw2_Pin */
+  GPIO_InitStruct.Pin = breaker_Pin|out_stop_dsrk_Pin|out_emkl_sw2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : sw1_Pin sw3_Pin sw4_Pin */
+  GPIO_InitStruct.Pin = sw1_Pin|sw3_Pin|sw4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
