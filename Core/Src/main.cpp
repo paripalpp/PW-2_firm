@@ -114,30 +114,49 @@ int main(void)
   HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
   HAL_Delay(10);
   HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_SET);
+
+  uint8_t pw_switch_prev = HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin);
+  enum {OFF, ON} power = OFF;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    uint8_t switches =
-      HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin) |
-      (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 1) |
-      (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 2) |
-      (HAL_GPIO_ReadPin(IM920_IO1_GPIO_Port, IM920_IO1_Pin) << 3);
-    
-    HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, !switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    //read switchs
+    uint8_t em_switches =
+      (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 0) |
+      (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 1) |
+      (HAL_GPIO_ReadPin(IM920_IO1_GPIO_Port, IM920_IO1_Pin) << 2);
 
-    HAL_GPIO_WritePin(out_emkl_sw2_GPIO_Port, out_emkl_sw2_Pin, switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(out_stop_dsrk_GPIO_Port, out_stop_dsrk_Pin, switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    uint8_t pw_switch = HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin);
 
-    if(!switches){
+    //trigger breaker
+    if (!em_switches){
+      if (pw_switch == GPIO_PIN_SET){
+        power = OFF;
+      } else if (pw_switch == GPIO_PIN_RESET && pw_switch_prev == GPIO_PIN_SET){
+        power = ON;
+      }
+    } else {
+      power = OFF;
+    }
+    pw_switch_prev = pw_switch;
+
+    //output to breaker
+    HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, power == ON ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    //output stop state to GPIO
+    HAL_GPIO_WritePin(out_emkl_sw2_GPIO_Port, out_emkl_sw2_Pin, em_switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(out_stop_dsrk_GPIO_Port, out_stop_dsrk_Pin, !power ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    if(power == ON){
       for(int i = 0; i < 45; i++){
         pixels.colors[i] = _blue;
       }
     }else{
       for(int i = 0; i < 4; i++){
-        if(switches & (1 << i)){
+        if(em_switches & (1 << i)){
           pixels.colors[i] = _orenge;
         }else{
           pixels.colors[i] = _white;
