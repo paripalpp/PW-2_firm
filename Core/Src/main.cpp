@@ -103,12 +103,12 @@ int main(void)
   stm_CAN::CAN_303x8 can(&hcan);
   ws2812::NeoPixel pixels(&htim3, TIM_CHANNEL_4, &hdma_tim3_ch4_up, 45, 22);
 
-  const ws2812::color _orenge = {48, 24, 0};
-  const ws2812::color _blue = {0, 48, 128};
-  const ws2812::color _green = {0, 48, 0};
-  const ws2812::color _purple = {24, 0, 72};
-  const ws2812::color _white = {12, 16, 32};
-  const ws2812::color _full = {255, 255, 255};
+  constexpr ws2812::color _orenge = {48, 24, 0};
+  constexpr ws2812::color _blue = {0, 48, 128};
+  constexpr ws2812::color _green = {0, 48, 0};
+  constexpr ws2812::color _purple = {24, 0, 72};
+  constexpr ws2812::color _white = {12, 16, 32};
+  constexpr ws2812::color _full = {255, 255, 255};
 
   HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);

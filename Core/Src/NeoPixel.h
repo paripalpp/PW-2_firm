@@ -11,16 +11,16 @@
 #include "stm32f3xx_hal.h"
 
 namespace ws2812 {
-const uint8_t byte = 8;
-const uint8_t color_num = 3;
-const uint8_t pixel_num = 4;
-const uint8_t data_len = byte * color_num * pixel_num;
-const uint8_t reset_bit = 1;
+constexpr uint8_t byte = 8;
+constexpr uint8_t color_num = 3;
+constexpr uint8_t pixel_num = 4;
+constexpr uint8_t data_len = byte * color_num * pixel_num;
+constexpr uint8_t reset_bit = 1;
 
 typedef struct {
-	uint8_t red = 0;
-	uint8_t green = 0;
-	uint8_t blue = 0;
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
 } color;
 
 class NeoPixel {
