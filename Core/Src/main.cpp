@@ -103,41 +103,60 @@ int main(void)
   stm_CAN::CAN_303x8 can(&hcan);
   ws2812::NeoPixel pixels(&htim3, TIM_CHANNEL_4, &hdma_tim3_ch4_up, 45, 22);
 
-  const ws2812::color _orenge = {48, 24, 0};
-  const ws2812::color _blue = {0, 48, 128};
-  const ws2812::color _green = {0, 48, 0};
-  const ws2812::color _purple = {24, 0, 72};
-  const ws2812::color _white = {12, 16, 32};
-  const ws2812::color _full = {255, 255, 255};
+  constexpr ws2812::color _orenge = {48, 24, 0};
+  constexpr ws2812::color _blue = {0, 48, 128};
+  constexpr ws2812::color _green = {0, 48, 0};
+  constexpr ws2812::color _purple = {24, 0, 72};
+  constexpr ws2812::color _white = {12, 16, 32};
+  constexpr ws2812::color _full = {255, 255, 255};
 
   HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
   HAL_Delay(10);
   HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_SET);
+
+  uint8_t pw_switch_prev = HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin);
+  enum {OFF, ON} power = OFF;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    uint8_t switches =
-      HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin) |
-      (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 1) |
-      (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 2) |
-      (HAL_GPIO_ReadPin(IM920_IO1_GPIO_Port, IM920_IO1_Pin) << 3);
-    
-    HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, !switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    //read switchs
+    uint8_t em_switches =
+      (HAL_GPIO_ReadPin(sw4_GPIO_Port, sw4_Pin) << 0) |
+      (HAL_GPIO_ReadPin(sw3_GPIO_Port, sw3_Pin) << 1) |
+      (HAL_GPIO_ReadPin(IM920_IO1_GPIO_Port, IM920_IO1_Pin) << 2);
 
-    HAL_GPIO_WritePin(out_emkl_sw2_GPIO_Port, out_emkl_sw2_Pin, switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(out_stop_dsrk_GPIO_Port, out_stop_dsrk_Pin, switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    uint8_t pw_switch = HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin);
 
-    if(!switches){
+    //trigger breaker
+    if (!em_switches){
+      if (pw_switch == GPIO_PIN_SET){
+        power = OFF;
+      } else if (pw_switch == GPIO_PIN_RESET && pw_switch_prev == GPIO_PIN_SET){
+        power = ON;
+      }
+    } else {
+      power = OFF;
+    }
+    pw_switch_prev = pw_switch;
+
+    //output to breaker
+    HAL_GPIO_WritePin(breaker_GPIO_Port, breaker_Pin, power == ON ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    //output stop state to GPIO
+    HAL_GPIO_WritePin(out_emkl_sw2_GPIO_Port, out_emkl_sw2_Pin, em_switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(out_stop_dsrk_GPIO_Port, out_stop_dsrk_Pin, !power ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    if(power == ON){
       for(int i = 0; i < 45; i++){
         pixels.colors[i] = _blue;
       }
     }else{
       for(int i = 0; i < 4; i++){
-        if(switches & (1 << i)){
+        if(em_switches & (1 << i)){
           pixels.colors[i] = _orenge;
         }else{
           pixels.colors[i] = _white;
