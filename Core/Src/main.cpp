@@ -132,7 +132,7 @@ int main(void)
     HAL_GPIO_WritePin(out_stop_dsrk_GPIO_Port, out_stop_dsrk_Pin, switches ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
     if(!switches){
-      for(int i = 0; i < 45; i++){
+      for(int i = 0; i < 4; i++){
         pixels.colors[i] = _blue;
       }
     }else{

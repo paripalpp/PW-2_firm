@@ -570,11 +570,11 @@ int main(void)
  8000504:	f897 3127 	ldrb.w	r3, [r7, #295]	; 0x127
  8000508:	2b00      	cmp	r3, #0
  800050a:	d120      	bne.n	800054e <main+0x1b2>
-      for(int i = 0; i < 45; i++){
+      for(int i = 0; i < 4; i++){
  800050c:	2300      	movs	r3, #0
  800050e:	f8c7 312c 	str.w	r3, [r7, #300]	; 0x12c
  8000512:	f8d7 312c 	ldr.w	r3, [r7, #300]	; 0x12c
- 8000516:	2b2c      	cmp	r3, #44	; 0x2c
+ 8000516:	2b03      	cmp	r3, #3
  8000518:	dc59      	bgt.n	80005ce <main+0x232>
         pixels.colors[i] = _blue;
  800051a:	f507 7398 	add.w	r3, r7, #304	; 0x130
@@ -592,7 +592,7 @@ int main(void)
  800053c:	7892      	ldrb	r2, [r2, #2]
  800053e:	8019      	strh	r1, [r3, #0]
  8000540:	709a      	strb	r2, [r3, #2]
-      for(int i = 0; i < 45; i++){
+      for(int i = 0; i < 4; i++){
  8000542:	f8d7 312c 	ldr.w	r3, [r7, #300]	; 0x12c
  8000546:	3301      	adds	r3, #1
  8000548:	f8c7 312c 	str.w	r3, [r7, #300]	; 0x12c

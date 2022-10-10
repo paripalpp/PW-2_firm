@@ -67,9 +67,6 @@ default.size.stdout \
 OBJDUMP_LIST += \
 PW-2_firm.list \
 
-OBJCOPY_BIN += \
-PW-2_firm.bin \
-
 
 # All Target
 all: main-build
@@ -93,17 +90,12 @@ PW-2_firm.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-PW-2_firm.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "PW-2_firm.bin"
-	@echo 'Finished building: $@'
-	@echo ' '
-
 # Other Targets
 clean:
-	-$(RM) PW-2_firm.bin PW-2_firm.elf PW-2_firm.list PW-2_firm.map default.size.stdout
+	-$(RM) PW-2_firm.elf PW-2_firm.list PW-2_firm.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'
