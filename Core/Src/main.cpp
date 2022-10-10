@@ -110,6 +110,11 @@ int main(void)
   constexpr ws2812::color _white = {12, 16, 32};
   constexpr ws2812::color _full = {255, 255, 255};
 
+  //original ID 0x003000 ~ 0x003FFF << 1 | 0
+  constexpr uint32_t original_id = 0x003000;
+  can.subscribe_message(0x00, stm_CAN::ID_type::std, stm_CAN::Frame_type::data, stm_CAN::FIFO::_0);
+  can.subscribe_message(original_id << 1 | 0, stm_CAN::ID_type::ext, stm_CAN::Frame_type::data, stm_CAN::FIFO::_0);
+
   HAL_GPIO_WritePin(IM920_RESET_GPIO_Port, IM920_RESET_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(IM920_IO10_GPIO_Port, IM920_IO10_Pin, GPIO_PIN_SET);
   HAL_Delay(10);
@@ -131,12 +136,47 @@ int main(void)
 
     uint8_t pw_switch = HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin);
 
+    enum {
+      none,
+      stop,
+      run
+    } pw_trig_CAN = none;
+
+    uint8_t CAN_msg[8];
+    if(can.read(stm_CAN::FIFO::_0, CAN_msg)){
+      switch (CAN_msg[0])
+      {
+      case 0x00:
+        can.send(original_id << 1 | 1, stm_CAN::ID_type::ext, stm_CAN::Frame_type::data, nullptr, 0);
+        break;
+      case 0x01:
+        HAL_NVIC_SystemReset();
+        break;
+      case 0x02:
+        if(CAN_msg[1] == 0x00){
+          pw_trig_CAN = stop;
+        }else if(CAN_msg[1] == 0x01){
+          pw_trig_CAN = run;
+        }
+        break;
+      default:
+        break;
+      }
+    }
+
     //trigger breaker
     if (!em_switches){
       if (pw_switch == GPIO_PIN_SET){
         power = OFF;
-      } else if (pw_switch == GPIO_PIN_RESET && pw_switch_prev == GPIO_PIN_SET){
-        power = ON;
+      } else if (pw_switch == GPIO_PIN_RESET){
+        if (pw_switch_prev == GPIO_PIN_SET){
+          power = ON;
+        }
+        if(pw_trig_CAN == stop){
+          power = OFF;
+        }else if(pw_trig_CAN == run){
+          power = ON;
+        }
       }
     } else {
       power = OFF;
